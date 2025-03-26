@@ -1,0 +1,21 @@
+name: Block Unauthorized Pushes to Main
+on:
+  push:                # Trigger on push events
+    branches: [ main ] # Only for the `main` branch
+
+jobs:
+  check-pusher:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify Pusher Permissions
+        run: |
+          # List of allowed GitHub usernames (replace with yours)
+          ALLOWED_USERS=("fcp-hunance")  
+
+          # Check if the pusher is in the allowed list
+          if [[ ! " ${ALLOWED_USERS[@]} " =~ " $GITHUB_ACTOR " ]]; then
+            echo "❌ DIRECT PUSH TO MAIN BLOCKED!"
+            echo "Only these users can push to main: ${ALLOWED_USERS[@]}"
+            echo "Please create a PR from a feature branch instead."
+            exit 1  # This fails the workflow and blocks the push
+          fi
