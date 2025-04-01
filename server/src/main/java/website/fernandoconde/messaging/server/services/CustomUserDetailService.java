@@ -1,4 +1,4 @@
 package website.fernandoconde.messaging.server.services;
 
-public class ClientManager {
+public class CustomUserDetailService {
 }
