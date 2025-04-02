@@ -4,11 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>messaging-app</artifactId>
-        <groupId>com.yourdomain.messaging</groupId>
+        <groupId>website.fernandoconde.messaging</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>client</artifactId>
 
     <dependencies>
@@ -24,9 +24,9 @@
 
         <!-- Common module -->
         <dependency>
-            <groupId>com.yourdomain.messaging</groupId>
-            <artifactId>common</artifactId>
-            <version>${project.version}</version>
+            <artifactId>messaging-common</artifactId>
+            <groupId>website.fernandoconde.messaging</groupId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
@@ -37,7 +37,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>com.yourdomain.messaging.client.ClientApp</mainClass>
+                    <mainClass>website.fernandoconde.messaging.client.ClientApp</mainClass>
                 </configuration>
             </plugin>
         </plugins>
