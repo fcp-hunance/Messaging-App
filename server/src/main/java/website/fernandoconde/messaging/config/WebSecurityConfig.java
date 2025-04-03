@@ -15,9 +15,10 @@ public class WebSecurityConfig {
         http
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
-                        .requestMatchers("/api/**").authenticated()
-                        .anyRequest().authenticated())
-                .oauth2ResourceServer(it -> it.jwt(Customizer.withDefaults())); //TODO Choose or create server for OAuth2
+                        .requestMatchers("/api/test").permitAll()
+                        .anyRequest().authenticated()).httpBasic();
+
         return http.build();
+    }
     }
 }

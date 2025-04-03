@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @RestController
-@RequestMapping
+@RequestMapping("/api/users")
 public class UserRestController {
     @GetMapping("/me")
     public Map<String, Object> myself(@AuthenticationPrincipal Jwt jwt) {
