@@ -3,7 +3,17 @@ package website.fernandoconde.messaging.repositories;
 import org.springframework.data.repository.CrudRepository;
 import website.fernandoconde.messaging.model.User;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository extends CrudRepository<User, UUID> {
+    // For local auth
+    Optional<User> findByUsername(String username);
+
+    // For OAuth2 auth
+    Optional<User> findByProviderAndProviderId(String provider, String providerId);
+
+    // Common checks
+    boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
 }

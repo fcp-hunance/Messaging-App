@@ -71,6 +71,12 @@
 			<artifactId>spring-security-oauth2-core</artifactId>
 			<version>5.8.3</version>  <!-- Ensure compatibility with Spring Boot 3.x -->
 		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.38</version> <!-- Use latest version -->
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
