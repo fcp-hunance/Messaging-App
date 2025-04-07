@@ -8,10 +8,10 @@ import java.util.UUID;
 
 public interface UserRepository extends CrudRepository<User, UUID> {
     // For local auth
-    Optional<User> findByUsername(String username);
+    User findByUsername(String username);
 
     // For OAuth2 auth
-    Optional<User> findByProviderAndProviderId(String provider, String providerId);
+    User findByProviderAndProviderId(String provider, String providerId);
 
     // Common checks
     boolean existsByUsername(String username);

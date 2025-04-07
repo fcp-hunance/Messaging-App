@@ -5,10 +5,11 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import website.fernandoconde.messaging.model.CustomOAuth2User;
 import website.fernandoconde.messaging.model.User;
+import website.fernandoconde.messaging.model.UserRole;
 import website.fernandoconde.messaging.repositories.UserRepository;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
@@ -31,23 +32,25 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String provider = userRequest.getClientRegistration().getRegistrationId(); // "github"
         String providerId = oauth2User.getName(); // GitHub user ID
         String email = (String) attributes.get("email");
-        String username = (String) attributes.get("login"); // GitHub username
+        String username = (String) attributes.get("login");
+        UserRole role = (UserRole) attributes.get("role"); // GitHub username
 
-        Optional<User> existingUser = userRepository.findByProviderAndProviderId(provider, providerId);
+        User existingUser = userRepository.findByProviderAndProviderId(provider, providerId);
+        User newUser = new User();
 
-        User user = existingUser.orElseGet(() -> {
-            // 3. Create new user if not found
-            User newUser = new User(
+        if (existingUser.getUsername().isEmpty()) {
+            newUser = User.createOAuth2User(
                     provider,
                     providerId,
                     email != null ? email : username + "@github.com",
-                    Collections.singleton(UserRole.ROLE_USER)
+                    role
             );
             newUser.setUsername(username); // Set GitHub login as username
-            return userRepository.save(newUser);
-        });
+            return (OAuth2User) userRepository.save(newUser);
+        }
+            // 3. Create new user if not found
 
         // 4. Return Spring Security-compatible user
-        return new CustomOAuth2User(user, attributes);
+        return new CustomOAuth2User(newUser, attributes);
     }
 }

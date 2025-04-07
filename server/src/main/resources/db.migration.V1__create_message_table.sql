@@ -8,14 +8,11 @@ CREATE TABLE users (
     id BINARY(16) PRIMARY KEY,
     username VARCHAR(255) UNIQUE,
     email VARCHAR(255) UNIQUE,
+    role VARCHAR(20) NOT NULL DEFAULT 'ROLE_USER',
     password VARCHAR(255),
     provider VARCHAR(50),
     provider_id VARCHAR(255),
-    INDEX idx_provider (provider, provider_id)
-);
-
-CREATE TABLE users_roles (
-    user_id BINARY(16),
-    roles VARCHAR(20),
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_provider (provider, provider_id),
+    INDEX idx_role (role)
 );

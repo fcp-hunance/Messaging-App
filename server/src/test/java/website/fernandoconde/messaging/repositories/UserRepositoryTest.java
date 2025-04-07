@@ -19,10 +19,8 @@ public class UserRepositoryTest {
 
     @Test
     public void testStoreUser() {
-        HashSet<UserRole> roles = new HashSet<>();
-        roles.add(UserRole.ADMIN);
-        roles.add(UserRole.USER);
-        User user = repository.save(new User(UUID.randomUUID(), "fcp.cello", "ferhu90@gmail.com", "Cimdata2025", roles));
+        User user = User.createLocalUser("fcp.cello", "ferhu90@gmail.com", "test", UserRole.ROLE_USER);
+        repository.save(user);
         assertNotNull(user);
         assertEquals(1L, repository.count());
     }

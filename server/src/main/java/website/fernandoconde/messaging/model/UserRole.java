@@ -1,11 +1,14 @@
 package website.fernandoconde.messaging.model;
 
-public enum UserRole {
-    ADMIN,
-    USER,
-    MANAGER;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-    public String getAuthority() {
-        return "ROLE_" + this.name();
+public enum UserRole {
+    ROLE_ADMIN,
+    ROLE_USER,
+    ROLE_MANAGER;
+
+    public GrantedAuthority toAuthority() {
+        return new SimpleGrantedAuthority(this.name());
     }
 }

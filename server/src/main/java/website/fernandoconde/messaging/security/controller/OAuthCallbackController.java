@@ -10,10 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 public class OAuthCallbackController {
 
-    private final OAuth2AuthorizedClientService authorizedClientService;
-
     public OAuthCallbackController(OAuth2AuthorizedClientService authorizedClientService) {
-        this.authorizedClientService = authorizedClientService;
     }
 
     @GetMapping("/callback/github")

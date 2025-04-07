@@ -14,7 +14,7 @@ import java.util.UUID;
 public interface MessageRepository extends JpaRepository<Message, UUID> {
 
     // Find all undelivered messages for a recipient
-    List<Message> findByRecipientAndIsDeliveredFalse(UUID recipientId);
+    List<Message> findByRecipientAndIsDeliveredFalse(User recipientId);
 
     // Bulk mark messages as delivered
     @Modifying

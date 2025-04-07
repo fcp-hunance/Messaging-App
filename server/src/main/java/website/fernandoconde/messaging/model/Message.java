@@ -2,6 +2,7 @@ package website.fernandoconde.messaging.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -11,8 +12,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Message {
-    @EmbeddedId
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
+    @UuidGenerator(style = UuidGenerator.Style.RANDOM)
     @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 

@@ -1,5 +1,6 @@
 package website.fernandoconde.messaging.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import website.fernandoconde.messaging.model.Message;
@@ -30,7 +31,8 @@ public class MessageService {
     }
 
     public List<Message> getUndeliveredMessages(UUID recipientId) {
-        return messageRepo.findByRecipientAndIsDeliveredFalse(recipientId);
+        User recipient = userRepo.findById(recipientId).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        return messageRepo.findByRecipientAndIsDeliveredFalse(recipient);
     }
 
     public void confirmDelivery(List<Long> messageIds) {

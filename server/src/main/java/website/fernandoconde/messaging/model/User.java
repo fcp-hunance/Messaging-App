@@ -1,24 +1,23 @@
 package website.fernandoconde.messaging.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.UuidGenerator;
 
-import java.util.Set;
 import java.util.UUID;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+
 @Entity
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "users") // Changed from 'user_repository' (more conventional)
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(columnDefinition = "BINARY(16)")
+    @UuidGenerator(style = UuidGenerator.Style.RANDOM)
+    @Column(columnDefinition = "BINARY(16)", updatable = false, nullable = false)
     private UUID id;
 
     @Column(unique = true, nullable = false)
@@ -27,30 +26,36 @@ public class User {
     @Column(unique = true)
     private String email;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole role;
+
+    @Column(nullable = false)
     private String password; // Encrypted (for local users)
 
     // OAuth2 fields (for GitHub users)
-    private String provider;  // "github" or null
+    private String provider;  // "GitHub" or null
     private String providerId; // GitHub user ID
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
-    @NotNull
-    private Set<UserRole> roles;
 
     // Constructor for OAuth2 users (GitHub)
-    public User(String provider, String providerId, String email, Set<UserRole> roles) {
-        this.provider = provider;
-        this.providerId = providerId;
-        this.email = email;
-        this.roles = roles;
+    public static User createOAuth2User(String provider, String providerId, String email, UserRole role) {
+        User user = new User();
+        user.setProvider(provider);
+        user.setProviderId(providerId);
+        user.setRole(role);
+        user.setEmail(email);
+        user.setUsername(providerId);
+        return user;
     }
 
     // Constructor for local users
-    public User(String username, String email, String password, Set<UserRole> roles) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.roles = roles;
+    public static User createLocalUser(String username, String email, String password, UserRole role) {
+        User user = new User();
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPassword(password);
+        user.setRole(role);
+        return user;
     }
 }
