@@ -17,15 +17,10 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final AuthenticationManager authenticationManager;
-    private final ObjectMapper objectMapper;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager,
-                                   ObjectMapper objectMapper, JwtTokenProvider jwtTokenProvider
+    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider
     ) {
         this.jwtTokenProvider = jwtTokenProvider;
-        this.authenticationManager = authenticationManager;
-        this.objectMapper = objectMapper;
     }
 
     @Override

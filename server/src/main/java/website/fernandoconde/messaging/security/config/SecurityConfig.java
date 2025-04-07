@@ -30,15 +30,17 @@ import website.fernandoconde.messaging.security.services.CustomOAuth2UserService
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
-    private UserRepository userRepository;
-    private ObjectMapper objectMapper;
+    private final UserRepository userRepository;
+    private final ObjectMapper objectMapper;
     private final JwtTokenProvider jwtTokenProvider;
 
-    @Autowired
-    private JsonAuthenticationFailureHandler jsonFailureHandler;
+    public SecurityConfig(UserRepository userRepository, ObjectMapper objectMapper, JwtTokenProvider jwtTokenProvider) {
+        this.userRepository = userRepository;
+        this.objectMapper = objectMapper;
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -54,19 +56,21 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(jsonAuthenticationFilter(
-                                authenticationManager(http.getSharedObject(AuthenticationConfiguration.class)),
-                                ObjectMapper
-                        ),
+                .addFilterBefore(
+                        new JwtAuthenticationFilter(jwtTokenProvider),
                         UsernamePasswordAuthenticationFilter.class
                 )
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
-                UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jsonAuthenticationFilter(
+                        authenticationManager(http.getSharedObject(AuthenticationConfiguration.class))),
+                        UsernamePasswordAuthenticationFilter.class
+                )
                 .formLogin(AbstractHttpConfigurer::disable)
                 .oauth2Login(oauth2 -> oauth2
                                 .userInfoEndpoint(userInfo -> userInfo
                                         .userService(oauth2UserService())
                                 )
+                                .successHandler(successHandler())
+                                .failureHandler(authenticationFailureHandler())
                 );
 
         return http.build();

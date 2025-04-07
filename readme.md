@@ -12,78 +12,38 @@
 ## Extra
 
 ## Annotations
-* Claims in JWT () {"roles": ["ADMIN", "USER"], "email": "user@example.com"}
-
-
+Request JSON to Login.
+* First create a TestUser in DB with a Post request to http://localhost:8080/api/test/create-test-user:
 ```
-    
+// Test User will be created with a Post request
+@PostMapping("/test/create-test-user")
+    public String createUser() {
+        User user = User.createLocalUser(
+                "testuser",
+                "test@example.com",
+                passwordEncoder.encode("testpassword"),
+                UserRole.ROLE_USER
+        );
+        userRepository.save(user);
+        return "Test user created!";
+    }
 ```
-
+* Payload/Body in JSON Request to http://localhost:8080/api/auth/login:
+```
+{
+    "username": "testuser",
+    "password": "testpassword"
+}   
+```
+* Response JWT with token in Payload:
+```
+{
+    "token": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJST0xFX1VTRVIiXSwic3ViIjoidGVzdHVzZXIiLCJpc3MiOiJtZXNzYWdpbmctYXBwLW1hcmZlciIsImlhdCI6MTc0NDA1MzIwMCwiZXhwIjoxNzQ0MTM5NjAwfQ.gMnRPpdmuDvOftVCna0JI5KRFh78xgDnIf_oeHEo6GA"
+}
+```
 ## Ideas
-Try to implement GitHub Login in JavaFX Controller:
 
-A good Idea: Working with environment variables to update later urls/paths and passwords
-```
-public class OAuth2Login {
 
-    public static void loginWithGitHub() {
-        try {
-            URI uri = new URI("http://localhost:8080/auth/login/github");
-            Desktop.getDesktop().browse(uri); // Opens system browser
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-}
-
-//And Retrieves the Access Token after login:
-
-public class OAuth2TokenFetcher {
-
-    public static String fetchAccessToken() {
-        try {
-            URL url = new URL("http://localhost:8080/auth/callback/google");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-
-            Scanner scanner = new Scanner(conn.getInputStream());
-            String response = scanner.useDelimiter("\\A").next();
-            scanner.close();
-
-            // Extract token from JSON response (use a JSON parser for better handling)
-            return response.contains("token") ? response.split("\"token\":\"")[1].split("\"")[0] : null;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-}
-
-Use API Requests with token
-
-public class SecureRequest {
-
-    public static String sendMessage(String token, String message) {
-        try {
-            URL url = new URL("http://localhost:8080/messages/send");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Authorization", "Bearer " + token);
-            conn.setDoOutput(true);
-            conn.getOutputStream().write(("message=" + message).getBytes());
-
-            Scanner scanner = new Scanner(conn.getInputStream());
-            String response = scanner.useDelimiter("\\A").next();
-            scanner.close();
-
-            return response;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-}
-```
 # Spring Boot Application flow
 ## 1.Application Startup
 ```
