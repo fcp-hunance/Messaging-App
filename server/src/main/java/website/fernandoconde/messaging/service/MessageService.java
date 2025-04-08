@@ -1,6 +1,7 @@
 package website.fernandoconde.messaging.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import website.fernandoconde.messaging.model.Message;
@@ -30,12 +31,18 @@ public class MessageService {
         return messageRepo.save(message);
     }
 
-    public List<Message> getUndeliveredMessages(UUID recipientId) {
-        User recipient = userRepo.findById(recipientId).orElseThrow(() -> new EntityNotFoundException("User not found"));
-        return messageRepo.findByRecipientAndIsDeliveredFalse(recipient);
-    }
+    @Transactional
+    public List<Message> getAndMarkUndeliveredMessages(UUID recipientId) {
+        // 1. Fetch undelivered messages
+        User recipient = userRepo.findById(recipientId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-    public void confirmDelivery(List<Long> messageIds) {
-        messageRepo.markAsDelivered(messageIds);
+        List<Message> undelivered = messageRepo.findByRecipientAndIsDeliveredFalse(recipient);
+
+        // 2. Mark messages as delivered
+        undelivered.forEach(message -> message.setDelivered(true));
+
+        // 3. Save changes (automatically flushed by @Transactional)
+        return messageRepo.saveAll(undelivered);
     }
 }

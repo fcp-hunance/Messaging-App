@@ -87,7 +87,7 @@ public class MessageController {
     ) {
         String username = getUsername(authentication);
         User recipient = userRepo.findByUsername(username);
-        List<Message> undelivered = messageService.getUndeliveredMessages(recipient.getId());
+        List<Message> undelivered = messageService.getAndMarkUndeliveredMessages(recipient.getId());
 
         List<Map<String, Object>> response = undelivered.stream()
                 .map(msg -> {

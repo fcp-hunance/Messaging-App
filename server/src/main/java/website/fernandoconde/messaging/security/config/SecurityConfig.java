@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -46,19 +47,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/h2-console/**")
-                        .disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .headers(headers -> headers
                         .frameOptions().sameOrigin())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/error**",
                                 "/api/test/**",
-                                "/api/auth/login",
                                 "/login/**",
                                 "/oauth2/**",
-                                "/h2-console/**"
+                                "/h2-console/**",
+                                "/api/auth/login"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
