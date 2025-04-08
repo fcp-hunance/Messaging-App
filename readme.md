@@ -13,26 +13,11 @@
 
 ## Annotations
 ### Request JSON to Login.
-* First create a TestUser in DB with a Post request to http://localhost:8080/api/test/create-test-user:
-```
-// Test User will be created with a Post request
-@PostMapping("/test/create-test-user")
-    public String createUser() {
-        User user = User.createLocalUser(
-                "testuser",
-                "test@example.com",
-                passwordEncoder.encode("testpassword"),
-                UserRole.ROLE_USER
-        );
-        userRepository.save(user);
-        return "Test user created!";
-    }
-```
-* Payload/Body in JSON Request to http://localhost:8080/api/auth/login:
+* Payload/Body in JSON Get Request to http://localhost:8080/api/auth/login:
 ```
 {
-    "username": "testuser",
-    "password": "testpassword"
+    "username": "testuser1",
+    "password": "testpassword1"
 }   
 ```
 * Response JWT with token in Payload:
@@ -42,69 +27,51 @@
 }
 ```
 ### Request OAuth2 Github
-Request to http://localhost:8080/oauth2/authorization/github
+Get Request to http://localhost:8080/oauth2/authorization/github
 After Successfully login in GitHub JWT response:
 ```
 {"token": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJST0xFX1VTRVIiXSwic3ViIjoiZmNwLWh1bmFuY2UiLCJpc3MiOiJtZXNzYWdpbmctYXBwLW1hcmZlciIsImlhdCI6MTc0NDA5OTc1NywiZXhwIjoxNzQ0MTg2MTU3fQ.xK_1xHXqdym8CIobrymPuAFLhlukK60J_32aaRatI2I",
 "userId": "27f279b4-13e1-4e04-8b16-d301e8be0cb9"}
 ```
-## Ideas
-
-
-# Spring Boot Application flow
-## 1.Application Startup
+### Send Message in JWT format
+Post request to http://localhost:8080/message/send
+In Header Authorization-Type: Bearer Token  
+//TODO How implement SessionID in desktopApp  
+In Body Recipient's Username and message.
 ```
-sequenceDiagram
-    participant Server
-    participant WebSecurityConfig
-    participant OAuth2Config
-    participant Controllers
-
-    Server->>WebSecurityConfig: Load security rules first
-    Server->>OAuth2Config: Auto-configure OAuth2 client
-    Server->>Controllers: Initialize REST endpoints
+{
+    "username": "user2",
+    "content": "Welcome! This is a test." 
+}
 ```
-## 2.GitHub OAuth2 (Update to Add Normal login comes soon)
+Server's response (Recipient's ID will be removed, not needed in client)
 ```
-sequenceDiagram
-    participant User
-    participant Browser
-    participant GitHub
-    participant YourSpringBootApp
-
-    User->>Browser: Visits /login/github
-    Browser->>YourSpringBootApp: GET /login/github
-    YourSpringBootApp->>GitHub: 302 Redirect to GitHub Auth
-    User->>GitHub: Logs in & approves
-    GitHub->>Browser: 302 Redirect to /api/auth/callback/github?code=XYZ
-    Browser->>YourSpringBootApp: GET /api/auth/callback/github?code=XYZ
-    YourSpringBootApp->>GitHub: Exchange code for token (POST)
-    GitHub->>YourSpringBootApp: Returns access_token
-    YourSpringBootApp->>GitHub: Get user info (with access_token)
-    GitHub->>YourSpringBootApp: Returns user profile (login, email, etc.)
-    YourSpringBootApp->>UserRepository: Save/update user data
-    YourSpringBootApp->>Browser: Sets session cookie
+{
+    "content": "Welcome! This is a test.",
+    "messageId": "e5571de8-c129-4693-af61-b8e018699d65",
+    "recipientId": "a016961e-db33-49ec-b010-b4cc99f1999f",
+    "timestamp": "2025-04-08T13:45:16.3691284"
+}
 ```
-## 3. Message FLow
+### Get undelivered Messages for Client
+Get Request to http://localhost:8080/message/undelivered  
+In Header Authorization-Type: Bearer Token  
+Body empty  
+Server's Response (Recipient ID will be removed, not needed in Client)
 ```
-sequenceDiagram
-    participant DesktopApp
-    participant SpringAPI
-    participant Database
-
-    DesktopApp->>SpringAPI: POST /api/auth/login (or OAuth2)
-    SpringAPI->>DesktopApp: JWT/session cookie
-
-    loop Message Sync
-        DesktopApp->>SpringAPI: GET /api/messages/pending
-        SpringAPI->>Database: Query undelivered messages
-        Database->>SpringAPI: Return messages
-        SpringAPI->>DesktopApp: Return messages as JSON
-        
-        DesktopApp->>SpringAPI: POST /api/messages/confirm {messageIds}
-        SpringAPI->>Database: Mark messages as delivered
-    end
-
-    DesktopApp->>SpringAPI: POST /api/messages/send {recipient, content}
-    SpringAPI->>Database: Save new message
+[
+    {
+        "recipientId": "a016961e-db33-49ec-b010-b4cc99f1999f",
+        "id": "e5571de8-c129-4693-af61-b8e018699d65",
+        "content": "Welcome! This is a test.",
+        "timestamp": "2025-04-08T13:45:16.369128"
+    },
+    {
+        "recipientId": "a016961e-db33-49ec-b010-b4cc99f1999f",
+        "id": "e5571de8-c129-4693-af61-b8e018699d65",
+        "content": "Another message.",
+        "timestamp": "2025-04-08T13:45:16.369128"
+    }
+]
 ```
+

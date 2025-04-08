@@ -1,5 +1,6 @@
 package website.fernandoconde.messaging.controller;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import website.fernandoconde.messaging.model.User;
@@ -37,5 +38,13 @@ public class APIRestController {
     @GetMapping("/protected")
     public String protectedData() {
         return "Protected data";
+    }
+
+    @GetMapping("/debug-auth")
+    public String debugAuth(Authentication authentication) {
+        if (authentication == null) {
+            return "NOT AUTHENTICATED";
+        }
+        return "Authenticated as: " + authentication.getPrincipal().toString();
     }
 }
