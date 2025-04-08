@@ -1,9 +1,9 @@
 package website.fernandoconde.messaging.repositories;
 
+import jakarta.persistence.Id;
 import org.springframework.data.repository.CrudRepository;
 import website.fernandoconde.messaging.model.User;
 
-import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository extends CrudRepository<User, UUID> {
@@ -16,4 +16,5 @@ public interface UserRepository extends CrudRepository<User, UUID> {
     // Common checks
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
+    User findById(Id id);
 }
