@@ -8,11 +8,9 @@ import java.util.Scanner;
 import org.json.JSONObject;
 
 public class ApiClients {
-    private final String apiUrl;
+    private final String apiUrl = "http://localhost:8080/api/auth/login";
 
-    public ApiClients(String apiUrl) {
-        this.apiUrl = "http://localhost:8080/api/auth/login";
-    }
+
 
     /**
      * Sendet Login-Daten als JSON an den Server, um sich für den Messenger anzumelden.
@@ -40,7 +38,6 @@ public class ApiClients {
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setDoOutput(true);
-            // connection.setRequestProperty("Content-Type", "application/json");
             // connection.setRequestProperty("Accept", "application/json");
 
 
