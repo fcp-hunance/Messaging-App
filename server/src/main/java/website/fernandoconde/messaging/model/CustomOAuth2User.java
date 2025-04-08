@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.UUID;
 
 public class CustomOAuth2User implements OAuth2User, UserDetails {
     @Getter
@@ -72,5 +73,17 @@ public class CustomOAuth2User implements OAuth2User, UserDetails {
     @Override
     public String getName() {
         return user.getUsername();
+    }
+
+    public UUID getId() {
+        return user.getId();
+    }
+
+    @Override
+    public String toString() {
+        return "CustomOAuth2User{" +
+                "user=" + user +
+                ", attributes=" + attributes +
+                '}';
     }
 }
