@@ -36,7 +36,32 @@
       <artifactId>junit-jupiter-engine</artifactId>
       <version>${junit.version}</version>
       <scope>test</scope>
-    </dependency>  </dependencies>
+    </dependency>
+
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.16.1</version> <!-- Aktuelle Version prüfen! -->
+    </dependency>
+
+    <!-- JSON Processing API -->
+    <dependency>
+      <groupId>javax.json</groupId>
+      <artifactId>javax.json-api</artifactId>
+      <version>1.1.4</version>
+    </dependency>
+
+    <!-- JSON Implementation -->
+    <dependency>
+      <groupId>org.eclipse.parsson</groupId>
+      <artifactId>parsson</artifactId>
+      <version>1.1.4</version>
+      <scope>runtime</scope>
+    </dependency>
+
+
+  </dependencies>
 
   <build>
     <plugins>

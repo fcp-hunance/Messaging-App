@@ -1,67 +1,106 @@
 package website.fernandoconde.messaging.client.network;
-/// src/main/java/network/ApiClient.java
-import java.net.http.*;
-import java.net.URI;
-import java.time.Duration;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ApiClient {
-    private final HttpClient httpClient;
-    private static final String BASE_URL = "http://localhost:8080/api";
-    private boolean useMockMode = true; // Standardmäßig Mock für Tests
+    private static final ObjectMapper mapper = new ObjectMapper();
+    private String jwtToken;
+    private final String baseUrl = "http://localhost:8080"; // Anpassen falls nötig
 
-    public ApiClient() {
-        this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(5))
-                .build();
-    }
-
-    // --- Mock-Modus (true = Testmodus, false = Echter Server) ---
-    public void setMockMode(boolean enabled) {
-        this.useMockMode = enabled;
-    }
-
-    // --- Login (Mock oder echt) ---
-    public boolean login(String username, String password) throws Exception {
-        if (useMockMode) {
-            return mockLogin(username, password); // Test-Login
-        } else {
-            return realLogin(username, password); // Echter Server-Login
-        }
-    }
-
-    // Mock-Login (immer true für "test"/"123")
-    private boolean mockLogin(String username, String password) {
-        return "test".equals(username) && "123".equals(password);
-    }
-
-    // Echter Login (HTTP-POST)
-    private boolean realLogin(String username, String password) throws Exception {
-        String requestBody = "username=" + username + "&password=" + password; // Einfache Form-Daten
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/login"))
-                .header("Content-Type", "application/x-www-form-urlencoded") // Kein JSON!
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                .build();
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        return response.statusCode() == 200; // Erfolg bei HTTP 200
-    }
-
-    public boolean testServerConnection() {
+    /**
+     * Login mit Benutzername/Passwort
+     */
+    public boolean login(String username, String password) {
         try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(BASE_URL + "/ping")) // Endpoint muss auf Server existieren
-                    .GET()
-                    .build();
+            // 1. JSON Request erstellen
+            Map<String, String> credentials = new HashMap<>();
+            credentials.put("username", username);
+            credentials.put("password", password);
+            String jsonRequest = mapper.writeValueAsString(credentials);
 
-            HttpResponse<String> response = httpClient.send(
-                    request, HttpResponse.BodyHandlers.ofString()
-            );
-            return response.statusCode() == 200;
-        } catch (Exception e) {
-            System.err.println("Server nicht erreichbar: " + e.getMessage());
-            return false;
+            // 2. Request senden
+            HttpURLConnection conn = sendPostRequest(baseUrl + "/api/auth/login", jsonRequest);
+
+            // 3. Response verarbeiten
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                JsonNode response = mapper.readTree(conn.getInputStream());
+                this.jwtToken = response.get("token").asText();
+                return true;
+            } else {
+                logErrorResponse(conn);
+            }
+        } catch (IOException e) {
+            System.err.println("Netzwerkfehler: " + e.getMessage());
         }
+        return false;
+    }
+
+    /**
+     * Authentifizierte Anfrage
+     */
+    public String getAuthenticatedData() throws IOException {
+        if (jwtToken == null) {
+            throw new IllegalStateException("Nicht eingeloggt!");
+        }
+
+        HttpURLConnection conn = (HttpURLConnection) new URL(baseUrl + "/api/protected").openConnection();
+        conn.setRequestProperty("Authorization", "Bearer " + jwtToken);
+
+        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            return readResponse(conn);
+        } else {
+            logErrorResponse(conn);
+            throw new IOException("HTTP " + conn.getResponseCode());
+        }
+    }
+
+    // --- Hilfsmethoden ---
+    private HttpURLConnection sendPostRequest(String url, String jsonBody) throws IOException {
+        HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("Accept", "application/json");
+        conn.setDoOutput(true);
+
+        try (OutputStream os = conn.getOutputStream()) {
+            byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
+            os.write(input, 0, input.length);
+        }
+        return conn;
+    }
+
+    private String readResponse(HttpURLConnection conn) throws IOException {
+        StringBuilder response = new StringBuilder();
+        try (BufferedReader in = new BufferedReader(
+                new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = in.readLine()) != null) {
+                response.append(line);
+            }
+        }
+        return response.toString();
+    }
+
+    private void logErrorResponse(HttpURLConnection conn) throws IOException {
+        System.err.println("Fehler: HTTP " + conn.getResponseCode());
+        try (BufferedReader errorReader = new BufferedReader(
+                new InputStreamReader(conn.getErrorStream(), StandardCharsets.UTF_8))) {
+            String errorLine;
+            while ((errorLine = errorReader.readLine()) != null) {
+                System.err.println("Server sagt: " + errorLine);
+            }
+        }
+    }
+
+    public String getJwtToken() {
+        return jwtToken;
     }
 }

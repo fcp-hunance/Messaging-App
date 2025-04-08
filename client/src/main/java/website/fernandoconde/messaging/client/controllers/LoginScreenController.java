@@ -15,15 +15,6 @@ public class LoginScreenController {
 
     @FXML
     void OnLogin(ActionEvent event) {
-        ApiClient client = new ApiClient();
-        client.setMockMode(false); // Echten Server-Login aktivieren
-
-        try {
-            boolean success = client.login("test", "123"); // Ruft intern realLogin() auf
-            System.out.println(success ? "Erfolg!" : "Fehler!");
-        } catch (Exception e) {
-            System.err.println("Netzwerkfehler: " + e.getMessage());
-        }
 
     }
 
