@@ -23,6 +23,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import website.fernandoconde.messaging.model.CustomOAuth2User;
 import website.fernandoconde.messaging.repositories.UserRepository;
 import website.fernandoconde.messaging.security.components.JsonAuthenticationFailureHandler;
 import website.fernandoconde.messaging.security.components.JwtTokenProvider;
@@ -51,7 +52,7 @@ public class SecurityConfig {
                                 "/error**",
                                 "/api/test/**",
                                 "/api/auth/login",
-                                "/api/auth/callback/**",
+                                "/login/**",
                                 "/oauth2/**"
                         ).permitAll()
                         .anyRequest().authenticated()
@@ -64,13 +65,16 @@ public class SecurityConfig {
                         authenticationManager(http.getSharedObject(AuthenticationConfiguration.class))),
                         UsernamePasswordAuthenticationFilter.class
                 )
-                .formLogin(AbstractHttpConfigurer::disable)
                 .oauth2Login(oauth2 -> oauth2
                                 .userInfoEndpoint(userInfo -> userInfo
                                         .userService(oauth2UserService())
                                 )
                                 .successHandler(successHandler())
                                 .failureHandler(authenticationFailureHandler())
+                )
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .permitAll()
                 );
 
         return http.build();
@@ -116,6 +120,20 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationSuccessHandler successHandler() {
-        return new SavedRequestAwareAuthenticationSuccessHandler();
+        return (request, response, authentication) -> {
+            // 1. Extract your saved user
+            CustomOAuth2User oauthUser = (CustomOAuth2User) authentication.getPrincipal();
+
+            // 2. Generate JWT
+            String jwt = jwtTokenProvider.generateToken(authentication);
+
+            // 3. Return JSON response
+            response.setContentType("application/json");
+            response.getWriter().write(
+                    String.format("{\"token\": \"%s\", \"userId\": \"%s\"}",
+                            jwt,
+                            oauthUser.getUser().getId())
+            );
+        };
     }
 }

@@ -30,7 +30,7 @@ public class User {
     @Column(nullable = false)
     private UserRole role;
 
-    @Column(nullable = false)
+    @Column(nullable = true) // Allow null for OAuth users
     private String password; // Encrypted (for local users)
 
     // OAuth2 fields (for GitHub users)
@@ -39,13 +39,14 @@ public class User {
 
 
     // Constructor for OAuth2 users (GitHub)
-    public static User createOAuth2User(String provider, String providerId, String email, UserRole role) {
+    public static User createOAuth2User(String provider, String providerId, String email, UserRole role, String password) {
         User user = new User();
         user.setProvider(provider);
         user.setProviderId(providerId);
         user.setRole(role);
         user.setEmail(email);
         user.setUsername(providerId);
+        user.setPassword(password);
         return user;
     }
 

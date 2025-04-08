@@ -20,16 +20,16 @@ public class UserRestController {
 
     private final UserRepository userRepository;
 
-//    @GetMapping("/me")
-//    public Map<String, Object> myself(@AuthenticationPrincipal OAuth2User oauth2User) throws UsernameNotFoundException {
-//        // Fetch from DB to get complete user data
-//        User user = userRepository.findByProviderAndProviderId("github", oauth2User.getName()).orElseThrow(() -> new UsernameNotFoundException(oauth2User.getName()));
-//
-//        return Map.of(
-//                "id", user.getId(),
-//                "username", user.getUsername() != null ? user.getUsername() : Objects.requireNonNull(oauth2User.getAttribute("login")),
-//                "email", user.getEmail(),
-//                "role", user.getRole()
-//        );
-//    }
+    @GetMapping("/me")
+    public Map<String, Object> myself(@AuthenticationPrincipal User user) throws UsernameNotFoundException {
+        // Fetch from DB to get complete user data
+        User userFetched = userRepository.findByUsername(user.getUsername());
+
+        return Map.of(
+                "id", userFetched.getId(),
+                "username", userFetched.getUsername(),
+                "email", user.getEmail(),
+                "role", user.getRole()
+        );
+    }
 }

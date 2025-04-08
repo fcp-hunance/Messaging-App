@@ -11,7 +11,6 @@ import website.fernandoconde.messaging.model.UserRole;
 import website.fernandoconde.messaging.repositories.UserRepository;
 
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
@@ -33,24 +32,23 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String providerId = oauth2User.getName(); // GitHub user ID
         String email = (String) attributes.get("email");
         String username = (String) attributes.get("login");
-        UserRole role = (UserRole) attributes.get("role"); // GitHub username
 
-        User existingUser = userRepository.findByProviderAndProviderId(provider, providerId);
-        User newUser = new User();
+        User user = userRepository.findByProviderAndProviderId(provider, providerId);
 
-        if (existingUser.getUsername().isEmpty()) {
-            newUser = User.createOAuth2User(
+        // 3. Create new user if not found
+        if (user == null) {
+            user = User.createOAuth2User(
                     provider,
                     providerId,
                     email != null ? email : username + "@github.com",
-                    role
+                    UserRole.ROLE_USER,
+                    "OAUTH2_USER_NO_PASSWORD"
             );
-            newUser.setUsername(username); // Set GitHub login as username
-            return (OAuth2User) userRepository.save(newUser);
+            user.setUsername(username); // Set GitHub login as username
+            user = userRepository.save(user);
         }
-            // 3. Create new user if not found
 
         // 4. Return Spring Security-compatible user
-        return new CustomOAuth2User(newUser, attributes);
+        return new CustomOAuth2User(user, attributes);
     }
 }

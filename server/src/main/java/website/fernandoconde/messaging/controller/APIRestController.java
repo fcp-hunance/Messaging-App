@@ -35,9 +35,7 @@ public class APIRestController {
     }
 
     @GetMapping("/protected")
-    public String protectedData(@RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.replace("Bearer ", "");
-        // Verify token with GitHub's API if needed
+    public String protectedData() {
         return "Protected data";
     }
 }

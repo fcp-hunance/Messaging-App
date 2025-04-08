@@ -1,5 +1,5 @@
 # Messaging App
-## Version 0.1
+## Version 0.2
 
 
 ## Feature
@@ -12,7 +12,7 @@
 ## Extra
 
 ## Annotations
-Request JSON to Login.
+### Request JSON to Login.
 * First create a TestUser in DB with a Post request to http://localhost:8080/api/test/create-test-user:
 ```
 // Test User will be created with a Post request
@@ -40,6 +40,13 @@ Request JSON to Login.
 {
     "token": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJST0xFX1VTRVIiXSwic3ViIjoidGVzdHVzZXIiLCJpc3MiOiJtZXNzYWdpbmctYXBwLW1hcmZlciIsImlhdCI6MTc0NDA1MzIwMCwiZXhwIjoxNzQ0MTM5NjAwfQ.gMnRPpdmuDvOftVCna0JI5KRFh78xgDnIf_oeHEo6GA"
 }
+```
+### Request OAuth2 Github
+Request to http://localhost:8080/oauth2/authorization/github
+After Successfully login in GitHub JWT response:
+```
+{"token": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJST0xFX1VTRVIiXSwic3ViIjoiZmNwLWh1bmFuY2UiLCJpc3MiOiJtZXNzYWdpbmctYXBwLW1hcmZlciIsImlhdCI6MTc0NDA5OTc1NywiZXhwIjoxNzQ0MTg2MTU3fQ.xK_1xHXqdym8CIobrymPuAFLhlukK60J_32aaRatI2I",
+"userId": "27f279b4-13e1-4e04-8b16-d301e8be0cb9"}
 ```
 ## Ideas
 
