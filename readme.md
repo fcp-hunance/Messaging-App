@@ -27,16 +27,15 @@
 }
 ```
 ### Request OAuth2 Github
-Get Request to http://localhost:8080/oauth2/authorization/github
+Get Request to http://localhost:8080/oauth2/authorization/github  
 After Successfully login in GitHub JWT response:
 ```
 {"token": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJST0xFX1VTRVIiXSwic3ViIjoiZmNwLWh1bmFuY2UiLCJpc3MiOiJtZXNzYWdpbmctYXBwLW1hcmZlciIsImlhdCI6MTc0NDA5OTc1NywiZXhwIjoxNzQ0MTg2MTU3fQ.xK_1xHXqdym8CIobrymPuAFLhlukK60J_32aaRatI2I",
 "userId": "27f279b4-13e1-4e04-8b16-d301e8be0cb9"}
 ```
 ### Send Message in JWT format
-Post request to http://localhost:8080/message/send
+Post request to http://localhost:8080/message/send  
 In Header Authorization-Type: Bearer Token  
-//TODO How implement SessionID in desktopApp  
 In Body Recipient's Username and message.
 ```
 {
