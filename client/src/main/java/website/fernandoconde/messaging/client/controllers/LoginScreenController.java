@@ -3,7 +3,7 @@ package website.fernandoconde.messaging.client.controllers;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
-import website.fernandoconde.messaging.client.network.ApiClient;
+
 
 public class LoginScreenController {
 

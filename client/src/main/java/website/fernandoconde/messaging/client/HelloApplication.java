@@ -9,7 +9,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import website.fernandoconde.messaging.client.network.ApiClient;
+import website.fernandoconde.messaging.client.network.ApiClients;
 
 import java.io.IOException;
 import java.util.Scanner;
@@ -30,21 +30,31 @@ public class HelloApplication extends Application {
 
     public static void main(String[] args) {
        // launch();
-
-        ApiClient client = new ApiClient();
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Messenger Login");
+        System.out.println("---------------");
+
+        System.out.print("API URL (z.B. https://example.com/api/login): ");
+        String apiUrl = scanner.nextLine();
+
         System.out.print("Benutzername: ");
         String username = scanner.nextLine();
+
         System.out.print("Passwort: ");
         String password = scanner.nextLine();
 
-        if (client.login(username, password)) {
-            System.out.println("Login erfolgreich! JWT: " + client.getJwtToken());
-            // Hier könntest du den Messenger-Client starten
-        } else {
-            System.out.println("Login fehlgeschlagen.");
+
+        ApiClients apiClient = new ApiClients(apiUrl);
+        try {
+            System.out.println("\nVersuche Login...");
+            String response = apiClient.login(username, password);
+            System.out.println("Erfolgreich eingeloggt!");
+            System.out.println("Serverantwort: " + response);
+        } catch (IOException e) {
+            System.err.println("\nFehler beim Login: " + e.getMessage());
+        } finally {
+            scanner.close();
         }
     }
 }
