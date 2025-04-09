@@ -1,19 +1,14 @@
 package website.fernandoconde.messaging.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -22,13 +17,13 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import website.fernandoconde.messaging.model.CustomOAuth2User;
 import website.fernandoconde.messaging.repositories.UserRepository;
-import website.fernandoconde.messaging.security.components.JsonAuthenticationFailureHandler;
 import website.fernandoconde.messaging.security.components.JwtTokenProvider;
 import website.fernandoconde.messaging.security.services.CustomOAuth2UserService;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
@@ -49,7 +44,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .headers(headers -> headers
-                        .frameOptions().sameOrigin())
+                        .frameOptions(withDefaults()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/error**",
@@ -136,7 +131,7 @@ public class SecurityConfig {
             response.getWriter().write(
                     String.format("{\"token\": \"%s\", \"userId\": \"%s\"}",
                             jwt,
-                            oauthUser.getUser().getId())
+                            oauthUser.getUsername())
             );
         };
     }

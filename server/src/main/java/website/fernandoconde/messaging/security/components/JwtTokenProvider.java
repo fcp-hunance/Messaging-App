@@ -3,6 +3,8 @@ package website.fernandoconde.messaging.security.components;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +15,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.security.Key;
 import java.util.*;
@@ -61,10 +64,6 @@ public class JwtTokenProvider {
                 authorities);
     }
 
-    public String generateTokenFromUsername(String username) {
-        return buildToken(new HashMap<>(), username);
-    }
-
     private String buildToken(Map<String, Object> extraClaims, String subject) {
         return Jwts.builder()
                 .setClaims(extraClaims)
@@ -85,7 +84,7 @@ public class JwtTokenProvider {
         return claimsResolver.apply(claims);
     }
 
-    public boolean validateToken(String token) {
+    public boolean validateToken(String token) throws InvalidTokenException{
         try {
             Jwts.parserBuilder()
                     .setSigningKey(getSignInKey())
@@ -93,15 +92,16 @@ public class JwtTokenProvider {
                     .parseClaimsJws(token);
             return true;
         } catch (MalformedJwtException e) {
-            logger.error("Invalid JWT token: {}", e.getMessage());
+            throw new InvalidTokenException("Invalid JWT token: {}", e);
         } catch (ExpiredJwtException e) {
-            logger.error("JWT token is expired: {}", e.getMessage());
+            throw new InvalidTokenException("JWT token is expired: {}", e);
         } catch (UnsupportedJwtException e) {
-            logger.error("JWT token is unsupported: {}", e.getMessage());
+            throw new InvalidTokenException("JWT token is unsupported: {}", e);
         } catch (IllegalArgumentException e) {
-            logger.error("JWT claims string is empty: {}", e.getMessage());
+            throw new InvalidTokenException("JWT claims string is empty: {}", e);
+        } catch (SignatureException e) {
+            throw new InvalidTokenException("JWT Validation Error: {}", e);
         }
-        return false;
     }
 
     private Claims extractAllClaims(String token) {

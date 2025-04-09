@@ -1,16 +1,23 @@
 package website.fernandoconde.messaging.security.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import website.fernandoconde.messaging.security.components.InvalidTokenException;
 import website.fernandoconde.messaging.security.components.JwtTokenProvider;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -26,14 +33,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, ServletException {
 
-        String token = getJwtFromRequest(request);
+        try {
+            String token = getJwtFromRequest(request);
+            if (token != null && jwtTokenProvider.validateToken(token)) {
+                // If valid, set authentication
+                Authentication auth = jwtTokenProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            }
+            filterChain.doFilter(request, response);
 
-        if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
-            Authentication authentication = jwtTokenProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        } catch (InvalidTokenException ex) {
+            // Custom JSON error response
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+
+            Map<String, String> errorDetails = new LinkedHashMap<>();
+            errorDetails.put("status", "error");
+            errorDetails.put("code", "INVALID_TOKEN");
+            errorDetails.put("message", ex.getMessage());
+
+            new ObjectMapper().writeValue(response.getWriter(), errorDetails);
         }
-
-        filterChain.doFilter(request, response);
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {

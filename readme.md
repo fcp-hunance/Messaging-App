@@ -1,12 +1,12 @@
 # Messaging App
-## Version 0.2
-
+## Version 0.3
 
 ## Feature
-* Register and Login New User (Server prove to unique Username)
-* Add and save Contacts by Username
-* delete Contacts with id (id will be fetch after successfully added from Contact)
-* Messaging to other Users by username.
+* Register and Login New User (Only possible with OAuth2 GitHub login)
+* Login with pre-saved Credentials in DB. 
+* Add and save Contacts by Username (Check if User exists in DB added)
+* delete Contacts with username
+* Messaging to other Users by username
 * Messages will be saved locally and in server Database as temporal Data, if the client is Offline.
 
 ## Extra
@@ -43,13 +43,29 @@ In Body Recipient's Username and message.
     "content": "Welcome! This is a test." 
 }
 ```
-Server's response (Recipient's ID will be removed, not needed in client)
+#### Server's responses
+* Message delivered
 ```
 {
     "content": "Welcome! This is a test.",
     "messageId": "e5571de8-c129-4693-af61-b8e018699d65",
-    "recipientId": "a016961e-db33-49ec-b010-b4cc99f1999f",
+    "recipient": "user2",
     "timestamp": "2025-04-08T13:45:16.3691284"
+}
+```
+Exceptions:
+* Recipient invalid
+```
+{
+    "status": 400,
+    "error": "Recipient not found!"
+}
+```
+* Sender and Recipient the same user
+```
+{
+    "status": 400,
+    "error": "Cannot send message to yourself"
 }
 ```
 ### Get undelivered Messages for Client
@@ -60,17 +76,37 @@ Server's Response (Recipient ID will be removed, not needed in Client)
 ```
 [
     {
-        "recipientId": "a016961e-db33-49ec-b010-b4cc99f1999f",
+        "recipient": "user2",
         "id": "e5571de8-c129-4693-af61-b8e018699d65",
         "content": "Welcome! This is a test.",
         "timestamp": "2025-04-08T13:45:16.369128"
     },
     {
-        "recipientId": "a016961e-db33-49ec-b010-b4cc99f1999f",
+        "recipientId": "user2",
         "id": "e5571de8-c129-4693-af61-b8e018699d65",
         "content": "Another message.",
         "timestamp": "2025-04-08T13:45:16.369128"
     }
 ]
 ```
+### Request to consult if an User exits in the DB
+Get Request to http://localhost:8080/api/users/find 
+In Header Authorization-Type: Bearer Token  
+Body: username to check
+```
+{
+    "username": "user2"
+}
+```
+Server's JSON Response 200 -> Exists / 400 -> Not found.
+```
+{
+    "message": "User not found",
+    "status": 404
+}
 
+{
+    "message": "User exists in DB",
+    "status": 200
+}
+```
