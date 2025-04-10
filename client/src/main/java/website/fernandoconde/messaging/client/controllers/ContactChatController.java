@@ -3,7 +3,10 @@ package website.fernandoconde.messaging.client.controllers;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
 import website.fernandoconde.messaging.client.network.ApiClient;
 
 import java.io.IOException;
@@ -31,6 +34,17 @@ public class ContactChatController {
     public void initialize() {
         contactListView.setOnMouseClicked(this::onContactSelected);
         loadFixedContact(); // Lädt automatisch den festen Kontakt
+        contactListView.setOnMouseClicked(this::onContactSelected);
+        loadFixedContact();
+        messageField.setOnKeyPressed(this::handleEnterPressed);
+
+        Platform.runLater(() -> {
+            Stage stage = (Stage) chatArea.getScene().getWindow();
+            stage.setOnCloseRequest(event -> {
+                handleClose();
+            });
+        });
+
     }
 
     public void setToken(String token) {
@@ -46,26 +60,26 @@ public class ContactChatController {
         contactListView.getSelectionModel().selectFirst();
         currentContact = FIXED_CONTACT;
         chatWithLabel.setText("Chat mit: " + FIXED_CONTACT);
-        loadChatHistory();
+        //loadChatHistory();
     }
 
     private void onContactSelected(MouseEvent event) {
         // Da wir nur einen Kontakt haben, ist dies redundant aber für die Struktur enthalten
         currentContact = contactListView.getSelectionModel().getSelectedItem();
-        if (currentContact != null) {
-            loadChatHistory();
-        }
+//        if (currentContact != null) {
+//            loadChatHistory();
+//        }
     }
 
-    private void loadChatHistory() {
-        try {
-            List<String> messages = apiClient.getMessages(currentToken, currentContact);
-            chatArea.clear();
-            messages.forEach(msg -> chatArea.appendText(msg + "\n"));
-        } catch (IOException e) {
-            showAlert("Fehler beim Laden des Chats", e.getMessage());
-        }
-    }
+//    private void loadChatHistory() {
+//        try {
+//            List<String> messages = apiClient.getMessages(currentToken, currentContact);
+//            chatArea.clear();
+//            messages.forEach(msg -> chatArea.appendText(FIXED_CONTACT+ ": " + msg + "\n"));
+//        } catch (IOException e) {
+//            showAlert("Fehler beim Laden des Chats", e.getMessage());
+//        }
+//    }
 
     @FXML
     private void onSendMessage() {
@@ -96,7 +110,7 @@ public class ContactChatController {
                 List<String> newMessages = apiClient.pollUndeliveredMessages(currentToken);
                 if (!newMessages.isEmpty()) {
                     Platform.runLater(() -> {
-                        newMessages.forEach(msg -> chatArea.appendText(msg + "\n"));
+                        newMessages.forEach(msg -> chatArea.appendText(FIXED_CONTACT + ": " + msg + "\n"));
                     });
                 }
             } catch (IOException e) {
@@ -125,5 +139,19 @@ public class ContactChatController {
             alert.setContentText(message);
             alert.showAndWait();
         });
+    }
+
+    @FXML
+    private void handleClose() {
+        shutdown();
+        Platform.exit();
+        System.exit(0);
+    }
+
+    @FXML
+    private void handleEnterPressed(KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER) {
+            onSendMessage();
+        }
     }
 }

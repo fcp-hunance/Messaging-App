@@ -9,9 +9,9 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import website.fernandoconde.messaging.client.network.ApiClient;
-import website.fernandoconde.messaging.client.service.MessageSend;
-import website.fernandoconde.messaging.client.service.MessageReceiver;
+//import website.fernandoconde.messaging.client.network.ApiClient;
+//import website.fernandoconde.messaging.client.service.MessageSend;
+//import website.fernandoconde.messaging.client.service.MessageReceiver;
 
 import java.io.IOException;
 import java.util.Scanner;
@@ -29,6 +29,7 @@ public class Main extends Application {
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Hello!");
         stage.setScene(scene);
+
 
 
         stage.show();

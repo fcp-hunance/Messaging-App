@@ -7,6 +7,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Text?>
 
+<?import javafx.scene.control.PasswordField?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="website.fernandoconde.messaging.client.controllers.LoginScreenController">
    <bottom>
       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Created By F.C. and M. AK." BorderPane.alignment="CENTER" />
@@ -15,8 +16,8 @@
       <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
             <TextField fx:id="userNameField" layoutX="226.0" layoutY="116.0" promptText="UserName" />
-            <TextField fx:id="passwordField" layoutX="226.0" layoutY="161.0" promptText="Password" />
-            <Button layoutX="225.0" layoutY="271.0" mnemonicParsing="false" onAction="#OnLogin" prefHeight="25.0" prefWidth="151.0" text="Login" />
+            <PasswordField fx:id="passwordField" layoutX="226.0" layoutY="161.0" promptText="Password" />
+            <Button layoutX="225.0" layoutY="271.0" mnemonicParsing="false" onAction="#onLogin" prefHeight="25.0" prefWidth="151.0" text="Login" />
             <Text layoutX="225.0" layoutY="98.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Welcome" wrappingWidth="95.13671875" />
             <Label fx:id="statusField" alignment="CENTER" layoutX="149.0" layoutY="192.0" prefHeight="72.0" prefWidth="303.0" textAlignment="JUSTIFY" />
          </children>

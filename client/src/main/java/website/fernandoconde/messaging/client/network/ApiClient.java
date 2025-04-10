@@ -94,28 +94,28 @@ public class ApiClient {
 //    }
 
     // Alle Nachrichten zu Kontakt abrufen (optional)
-    public List<String> getMessages(String token, String contact) throws IOException {
-        List<String> messages = new ArrayList<>();
-
-        URL url = new URL(apiUrl + "/api/messages?contact=" + contact);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        conn.setRequestMethod("GET");
-        conn.setRequestProperty("Authorization", "Bearer " + token);
-
-        if (conn.getResponseCode() == 200) {
-            JsonNode response = objectMapper.readTree(conn.getInputStream());
-            for (JsonNode msg : response) {
-                String sender = msg.get("sender").asText();
-                String text = msg.get("text").asText();
-                messages.add(sender + ": " + text);
-            }
-        } else {
-            throw new IOException("Failed to fetch messages: " + conn.getResponseCode());
-        }
-
-        return messages;
-    }
+//    public List<String> getMessages(String token, String contact) throws IOException {
+//        List<String> messages = new ArrayList<>();
+//
+//        URL url = new URL(apiUrl + "/message/undelivered");
+//        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//
+//        conn.setRequestMethod("GET");
+//        conn.setRequestProperty("Authorization", "Bearer " + token);
+//
+//        if (conn.getResponseCode() == 200) {
+//            JsonNode response = objectMapper.readTree(conn.getInputStream());
+//            for (JsonNode msg : response) {
+//                String sender = msg.get("sender").asText();
+//                String text = msg.get("text").asText();
+//                messages.add(sender + ": " + text);
+//            }
+//        } else {
+//            throw new IOException("Failed to fetch messages: " + conn.getResponseCode());
+//        }
+//
+//        return messages;
+//    }
 
     // Neue Nachrichten (ungeliefert) abrufen -> wie MessageReceiver
     public List<String> pollUndeliveredMessages(String token) throws IOException {

@@ -5,7 +5,8 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.layout.HBox?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21"
+<BorderPane
+            xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="website.fernandoconde.messaging.client.controllers.ContactChatController"
             prefHeight="600.0" prefWidth="800.0">
