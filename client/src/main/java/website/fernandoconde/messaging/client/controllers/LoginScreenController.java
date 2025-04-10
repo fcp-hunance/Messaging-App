@@ -9,11 +9,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import website.fernandoconde.messaging.client.network.ApiClient;
-
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.nio.charset.StandardCharsets;
+
 
 public class LoginScreenController {
     @FXML private TextField userNameField;
@@ -86,7 +83,7 @@ public class LoginScreenController {
 
             Stage stage = (Stage) userNameField.getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.setTitle("MyMessenger - Chat");
+            stage.setTitle("MarFer");
             stage.show();
 
         } catch (IOException e) {

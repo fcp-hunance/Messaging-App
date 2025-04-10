@@ -8,7 +8,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import website.fernandoconde.messaging.client.network.ApiClient;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -37,7 +36,7 @@ public class ContactChatController {
         contactListView.setOnMouseClicked(this::onContactSelected);
         loadFixedContact();
         messageField.setOnKeyPressed(this::handleEnterPressed);
-
+        Platform.runLater(() -> messageField.requestFocus());
         Platform.runLater(() -> {
             Stage stage = (Stage) chatArea.getScene().getWindow();
             stage.setOnCloseRequest(event -> {
@@ -66,20 +65,7 @@ public class ContactChatController {
     private void onContactSelected(MouseEvent event) {
         // Da wir nur einen Kontakt haben, ist dies redundant aber für die Struktur enthalten
         currentContact = contactListView.getSelectionModel().getSelectedItem();
-//        if (currentContact != null) {
-//            loadChatHistory();
-//        }
     }
-
-//    private void loadChatHistory() {
-//        try {
-//            List<String> messages = apiClient.getMessages(currentToken, currentContact);
-//            chatArea.clear();
-//            messages.forEach(msg -> chatArea.appendText(FIXED_CONTACT+ ": " + msg + "\n"));
-//        } catch (IOException e) {
-//            showAlert("Fehler beim Laden des Chats", e.getMessage());
-//        }
-//    }
 
     @FXML
     private void onSendMessage() {
@@ -89,6 +75,7 @@ public class ContactChatController {
                 apiClient.sendMessage(currentToken, currentContact, message);
                 chatArea.appendText("Du: " + message + "\n");
                 messageField.clear();
+                messageField.requestFocus(); // Cursor zurück ins Textfeld
             } catch (IOException e) {
                 showAlert("Nachricht konnte nicht gesendet werden", e.getMessage());
             }
@@ -152,6 +139,7 @@ public class ContactChatController {
     private void handleEnterPressed(KeyEvent event) {
         if (event.getCode() == KeyCode.ENTER) {
             onSendMessage();
+            event.consume(); // Verhindert unerwünschtes Verhalten der Enter-Taste
         }
     }
 }
