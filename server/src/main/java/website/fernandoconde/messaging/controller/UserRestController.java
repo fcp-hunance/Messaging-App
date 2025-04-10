@@ -1,17 +1,13 @@
 package website.fernandoconde.messaging.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import website.fernandoconde.messaging.model.User;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import website.fernandoconde.messaging.dto.MessageRequest;
 import website.fernandoconde.messaging.repositories.UserRepository;
 
 import java.util.Map;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/users")
@@ -20,16 +16,16 @@ public class UserRestController {
 
     private final UserRepository userRepository;
 
-    @GetMapping("/me")
-    public Map<String, Object> myself(@AuthenticationPrincipal User user) throws UsernameNotFoundException {
-        // Fetch from DB to get complete user data
-        User userFetched = userRepository.findByUsername(user.getUsername());
-
-        return Map.of(
-                "id", userFetched.getId(),
-                "username", userFetched.getUsername(),
-                "email", user.getEmail(),
-                "role", user.getRole()
-        );
-    }
+    @PostMapping("/find")
+    public ResponseEntity<Map<String, Object>> findByUsername(
+            @RequestBody MessageRequest request
+    ) { return (userRepository.existsByUsername(request.username())?
+            ResponseEntity.status(HttpStatus.OK).body(
+            Map.of("status", 200,
+                    "message", "User exists in DB")
+    ) : ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            Map.of("status", 400,
+                    "message", "User not found")
+            )
+    );}
 }

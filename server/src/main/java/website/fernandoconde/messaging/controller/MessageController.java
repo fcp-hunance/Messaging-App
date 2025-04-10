@@ -4,9 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import website.fernandoconde.messaging.dto.MessageRequest;
@@ -37,19 +35,18 @@ public class MessageController {
             User sender = userRepo.findByUsername(username);
             User recipient = userRepo.findByUsername(request.username());
 
-            if (recipient.getEmail().isEmpty()) {
-                System.out.println("Recipient not found!");
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "Recipient not found!"
+            if (recipient == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                        Map.of("status", 400,
+                                "error", "Recipient not found!")
                 );
             }
 
             // Prevent self-messaging
             if (sender.getUsername().equals(recipient.getUsername())) {
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "Cannot send message to yourself"
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                        Map.of("status", 400,
+                                "error", "Cannot send message to yourself")
                 );
             }
 
@@ -63,7 +60,7 @@ public class MessageController {
                     Map.of(
                             "messageId", message.getId(),
                             "content", message.getContent(),
-                            "recipientId", recipient.getId(),
+                            "recipient", recipient.getUsername(),
                             "timestamp", message.getTimestamp()
                     )
             );
@@ -94,7 +91,7 @@ public class MessageController {
                     Map<String, Object> map = new HashMap<>();
                     map.put("id", msg.getId());
                     map.put("content", msg.getContent());
-                    map.put("recipientId", msg.getRecipient().getId());
+                    map.put("recipient", msg.getRecipient().getUsername());
                     map.put("timestamp", msg.getTimestamp());
                     return map;
                 })
