@@ -18,38 +18,38 @@ public class MessageReceiver {
         this.jwtToken = jwtToken;
     }
 
-    public void pollMessages() throws IOException {
-        String receiveUrl = apiUrl + "/message/undelivered";
-
-        HttpURLConnection connection = (HttpURLConnection) new URL(receiveUrl).openConnection();
-        connection.setRequestMethod("GET");
-        connection.setRequestProperty("Authorization", "Bearer " + jwtToken);
-        connection.setRequestProperty("Accept", "application/json");
-
-        int status = connection.getResponseCode();
-
-        if (status == 200) {
-            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
-            StringBuilder response = new StringBuilder();
-            String line;
-            while ((line = br.readLine()) != null) {
-                response.append(line);
-            }
-
-            JSONArray messages = new JSONArray(response.toString());
-
-            if (messages.isEmpty()) {
-                System.out.println("Keine neuen Nachrichten.");
-            } else {
-                for (int i = 0; i < messages.length(); i++) {
-                    JSONObject msg = messages.getJSONObject(i);
-                    System.out.println("Nachricht: " + msg.getString("content"));
-                    System.out.println("--------------");
-                }
-            }
-
-        } else {
-            System.out.println("Fehler beim Empfangen der Nachrichten. Code: " + status);
-        }
-    }
+//    public void pollMessages() throws IOException {
+//        String receiveUrl = apiUrl + "/message/undelivered";
+//
+//        HttpURLConnection connection = (HttpURLConnection) new URL(receiveUrl).openConnection();
+//        connection.setRequestMethod("GET");
+//        connection.setRequestProperty("Authorization", "Bearer " + jwtToken);
+//        connection.setRequestProperty("Accept", "application/json");
+//
+//        int status = connection.getResponseCode();
+//
+//        if (status == 200) {
+//            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
+//            StringBuilder response = new StringBuilder();
+//            String line;
+//            while ((line = br.readLine()) != null) {
+//                response.append(line);
+//            }
+//
+//            JSONArray messages = new JSONArray(response.toString());
+//
+//            if (messages.isEmpty()) {
+//                System.out.println("Keine neuen Nachrichten.");
+//            } else {
+//                for (int i = 0; i < messages.length(); i++) {
+//                    JSONObject msg = messages.getJSONObject(i);
+//                    System.out.println("Nachricht: " + msg.getString("content"));
+//                    System.out.println("--------------");
+//                }
+//            }
+//
+//        } else {
+//            System.out.println("Fehler beim Empfangen der Nachrichten. Code: " + status);
+//        }
+//    }
 }

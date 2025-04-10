@@ -2,11 +2,11 @@ package website.fernandoconde.messaging.client.network;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import website.fernandoconde.messaging.client.model.Contact;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,8 +31,7 @@ public class ApiClient {
         String jsonInput = String.format("{\"username\":\"%s\",\"password\":\"%s\"}", username, password);
 
         try (OutputStream os = conn.getOutputStream()) {
-            os.write(jsonInput.getBytes());
-            os.flush();
+            os.write(jsonInput.getBytes(StandardCharsets.UTF_8));
         }
 
         if (conn.getResponseCode() == 200) {
@@ -43,29 +42,10 @@ public class ApiClient {
         }
     }
 
-    // Alle Kontakte laden
+    // Kontakte laden
     public List<String> getContacts(String token) throws IOException {
         List<String> contacts = new ArrayList<>();
-        Contact user2 = new Contact("user2");
-        contacts.add(user2.getUsername()); //fixme users need to be found
-        URL url = new URL(apiUrl + "/contacts");
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        conn.setRequestMethod("GET");
-        conn.setRequestProperty("Authorization", "Bearer " + token);
-        if (conn.getResponseCode() == 200) {
-            JsonNode response = objectMapper.readTree(conn.getInputStream());
-            response.forEach(node -> contacts.add(node.get("username").asText()));
-        } else {
-            throw new IOException("Failed to fetch contacts: " + conn.getResponseCode());
-        }
-
-        return contacts;
-    }
-
-    // Kontakt hinzufügen
-    public boolean addContact(String token, String username) throws IOException {
-        URL url = new URL(apiUrl + "/contacts/add");
+        URL url = new URL(apiUrl + "/api/users/find");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
         conn.setRequestMethod("POST");
@@ -73,24 +53,51 @@ public class ApiClient {
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setDoOutput(true);
 
-        String jsonInput = String.format("{\"username\":\"%s\"}", username);
+        String jsonInput = "{\"username\":\"user2\"}";
 
         try (OutputStream os = conn.getOutputStream()) {
-            os.write(jsonInput.getBytes());
-            os.flush();
+            os.write(jsonInput.getBytes(StandardCharsets.UTF_8));
         }
 
-        if (conn.getResponseCode() != 200) {
-            throw new IOException("Failed to add contact: " + conn.getResponseCode());
+        if (conn.getResponseCode() == 200) {
+            JsonNode response = objectMapper.readTree(conn.getInputStream());
+            if (response.has("username") && "user2".equals(response.get("username").asText())) {
+                contacts.add("user2");
+            }
+        } else {
+            throw new IOException("User2 not found: " + conn.getResponseCode());
         }
-        return false;
+
+        return contacts;
     }
 
-    // Nachrichten abrufen
+    // Kontakt hinzufügen
+//    public boolean addContact(String token, String username) throws IOException {
+//        URL url = new URL(apiUrl + "/contacts/add");
+//        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//
+//        conn.setRequestMethod("POST");
+//        conn.setRequestProperty("Authorization", "Bearer " + token);
+//        conn.setRequestProperty("Content-Type", "application/json");
+//        conn.setDoOutput(true);
+//
+//        String jsonInput = String.format("{\"username\":\"%s\"}", username);
+//
+//        try (OutputStream os = conn.getOutputStream()) {
+//            os.write(jsonInput.getBytes(StandardCharsets.UTF_8));
+//        }
+//
+//        if (conn.getResponseCode() != 200) {
+//            throw new IOException("Failed to add contact: " + conn.getResponseCode());
+//        }
+//        return true;
+//    }
+
+    // Alle Nachrichten zu Kontakt abrufen (optional)
     public List<String> getMessages(String token, String contact) throws IOException {
         List<String> messages = new ArrayList<>();
 
-        URL url = new URL(apiUrl + "/messages?contact=" + contact);
+        URL url = new URL(apiUrl + "/api/messages?contact=" + contact);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
         conn.setRequestMethod("GET");
@@ -110,9 +117,46 @@ public class ApiClient {
         return messages;
     }
 
+    // Neue Nachrichten (ungeliefert) abrufen -> wie MessageReceiver
+    public List<String> pollUndeliveredMessages(String token) throws IOException {
+        List<String> messages = new ArrayList<>();
+
+        URL url = new URL(apiUrl + "/message/undelivered");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Authorization", "Bearer " + token);
+        conn.setRequestProperty("Accept", "application/json");
+
+        if (conn.getResponseCode() == 200) {
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                response.append(line);
+            }
+
+            JsonNode json = objectMapper.readTree(response.toString());
+            if (json.isEmpty()) {
+                System.out.println("Keine neuen Nachrichten.");
+            } else {
+                for (JsonNode msg : json) {
+                    String content = msg.get("content").asText();
+                    messages.add(content);
+                    System.out.println("Nachricht: " + content);
+                    System.out.println("--------------");
+                }
+            }
+        } else {
+            throw new IOException("Fehler beim Empfangen der Nachrichten: " + conn.getResponseCode());
+        }
+
+        return messages;
+    }
+
     // Nachricht senden
     public void sendMessage(String token, String recipient, String message) throws IOException {
-        URL url = new URL(apiUrl + "/messages/send");
+        URL url = new URL(apiUrl + "/message/send");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
         conn.setRequestMethod("POST");
@@ -120,14 +164,15 @@ public class ApiClient {
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setDoOutput(true);
 
-        String jsonInput = String.format("{\"recipient\":\"%s\",\"message\":\"%s\"}", recipient, message);
+        String jsonInput = String.format("{\"username\":\"%s\",\"content\":\"%s\"}", recipient, message);
 
         try (OutputStream os = conn.getOutputStream()) {
-            os.write(jsonInput.getBytes());
-            os.flush();
+            os.write(jsonInput.getBytes(StandardCharsets.UTF_8));
         }
 
-        if (conn.getResponseCode() != 200) {
+        if (conn.getResponseCode() == 201) {
+            System.out.println("Nachricht erfolgreich gesendet.");
+        } else {
             throw new IOException("Failed to send message: " + conn.getResponseCode());
         }
     }

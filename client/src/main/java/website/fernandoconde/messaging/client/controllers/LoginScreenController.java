@@ -9,13 +9,16 @@ import javafx.stage.Stage;
 import website.fernandoconde.messaging.client.network.ApiClient;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.nio.charset.StandardCharsets;
 
 public class LoginScreenController {
     @FXML private TextField userNameField;
     @FXML private TextField passwordField;
     @FXML private Label statusField;
 
-    private final ApiClient apiClient = new ApiClient("http://localhost:8080");
+    private final ApiClient apiClient = new ApiClient("http://10.101.186.28:8080");
 
     @FXML
     private void OnLogin() {
@@ -28,9 +31,11 @@ public class LoginScreenController {
         }
 
         try {
-            // Authentifizierung über ApiClient
+
+            //Authentifizierung über ApiClient
             String token = apiClient.login(username, password);
             switchToContactChat(token);
+
 
         } catch (IOException e) {
             statusField.setText("Login fehlgeschlagen: " + e.getMessage());

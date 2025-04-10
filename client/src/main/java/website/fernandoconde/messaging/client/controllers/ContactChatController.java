@@ -1,5 +1,6 @@
 package website.fernandoconde.messaging.client.controllers;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
@@ -7,6 +8,9 @@ import website.fernandoconde.messaging.client.network.ApiClient;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ContactChatController {
     @FXML private ListView<String> contactListView;
@@ -16,31 +20,39 @@ public class ContactChatController {
 
     private String currentToken;
     private String currentContact;
-    private final ApiClient apiClient = new ApiClient("http://localhost:8080");
+    private final ApiClient apiClient = new ApiClient("http://10.101.186.28:8080");
+    private ScheduledExecutorService messagePoller;
+    private boolean isPollingActive = false;
+
+    // Konstante für den festen Kontakt
+    private static final String FIXED_CONTACT = "CPFernando";
 
     @FXML
     public void initialize() {
         contactListView.setOnMouseClicked(this::onContactSelected);
+        loadFixedContact(); // Lädt automatisch den festen Kontakt
     }
 
     public void setToken(String token) {
         this.currentToken = token;
-        loadContacts();
+        startMessagePolling(); // Startet das Nachrichten-Polling
     }
 
-    private void loadContacts() {
-        try {
-            List<String> contacts = apiClient.getContacts(currentToken);
-            contactListView.getItems().setAll(contacts);
-        } catch (IOException e) {
-            showAlert("Fehler beim Laden der Kontakte", e.getMessage());
-        }
+    private void loadFixedContact() {
+        // Setzt nur den festen Kontakt in die Liste
+        contactListView.getItems().setAll(FIXED_CONTACT);
+
+        // Automatisch den Kontakt auswählen
+        contactListView.getSelectionModel().selectFirst();
+        currentContact = FIXED_CONTACT;
+        chatWithLabel.setText("Chat mit: " + FIXED_CONTACT);
+        loadChatHistory();
     }
 
     private void onContactSelected(MouseEvent event) {
+        // Da wir nur einen Kontakt haben, ist dies redundant aber für die Struktur enthalten
         currentContact = contactListView.getSelectionModel().getSelectedItem();
         if (currentContact != null) {
-            chatWithLabel.setText("Chat mit: " + currentContact);
             loadChatHistory();
         }
     }
@@ -71,28 +83,47 @@ public class ContactChatController {
 
     @FXML
     private void onAddContact() {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Kontakt hinzufügen");
-        dialog.setHeaderText("Username des neuen Kontakts:");
+        showAlert("Info", "In dieser Demo können keine weiteren Kontakte hinzugefügt werden.");
+    }
 
-        dialog.showAndWait().ifPresent(username -> {
+    private void startMessagePolling() {
+        if (isPollingActive || currentToken == null) return;
+        System.out.println(currentToken);
+        isPollingActive = true;
+        messagePoller = Executors.newSingleThreadScheduledExecutor();
+        messagePoller.scheduleAtFixedRate(() -> {
             try {
-                if (apiClient.addContact(currentToken, username)) {
-                    loadContacts();
-                } else {
-                    showAlert("Fehler", "Kontakt konnte nicht hinzugefügt werden");
+                List<String> newMessages = apiClient.pollUndeliveredMessages(currentToken);
+                if (!newMessages.isEmpty()) {
+                    Platform.runLater(() -> {
+                        newMessages.forEach(msg -> chatArea.appendText(msg + "\n"));
+                    });
                 }
             } catch (IOException e) {
-                showAlert("Serverfehler", e.getMessage());
+                Platform.runLater(() ->
+                        System.err.println("Polling error: " + e.getMessage()));
             }
-        });
+        }, 0, 3, TimeUnit.SECONDS); // Polling alle 3 Sekunden
+    }
+
+    public void stopMessagePolling() {
+        if (messagePoller != null) {
+            messagePoller.shutdown();
+            isPollingActive = false;
+        }
+    }
+
+    public void shutdown() {
+        stopMessagePolling();
     }
 
     private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
     }
 }
