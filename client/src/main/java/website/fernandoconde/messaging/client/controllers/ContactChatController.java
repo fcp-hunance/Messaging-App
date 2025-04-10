@@ -66,20 +66,7 @@ public class ContactChatController {
     private void onContactSelected(MouseEvent event) {
         // Da wir nur einen Kontakt haben, ist dies redundant aber für die Struktur enthalten
         currentContact = contactListView.getSelectionModel().getSelectedItem();
-//        if (currentContact != null) {
-//            loadChatHistory();
-//        }
     }
-
-//    private void loadChatHistory() {
-//        try {
-//            List<String> messages = apiClient.getMessages(currentToken, currentContact);
-//            chatArea.clear();
-//            messages.forEach(msg -> chatArea.appendText(FIXED_CONTACT+ ": " + msg + "\n"));
-//        } catch (IOException e) {
-//            showAlert("Fehler beim Laden des Chats", e.getMessage());
-//        }
-//    }
 
     @FXML
     private void onSendMessage() {
