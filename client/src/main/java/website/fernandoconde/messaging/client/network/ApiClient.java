@@ -47,7 +47,7 @@ public class ApiClient {
     public List<String> getContacts(String token) throws IOException {
         List<String> contacts = new ArrayList<>();
         Contact user2 = new Contact("user2");
-        contacts.add(user2.getUsername());
+        contacts.add(user2.getUsername()); //fixme users need to be found
         URL url = new URL(apiUrl + "/contacts");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
