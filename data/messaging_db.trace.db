@@ -126,3 +126,7 @@ org.h2.jdbc.JdbcSQLNonTransientConnectionException: Database is already closed (
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350)
 	at website.fernandoconde.messaging.ServerMain.main(ServerMain.java:13)
+2025-04-09 16:20:02.318148+02:00 jdbc[23]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax Fehler in SQL Befehl "[*]USERNAME"; erwartet "UPDATE"
+Syntax error in SQL statement "[*]USERNAME"; expected "UPDATE"; SQL statement:
+USERNAME [42001-232]

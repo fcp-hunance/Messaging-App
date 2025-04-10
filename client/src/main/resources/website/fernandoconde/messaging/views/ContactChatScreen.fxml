@@ -1,14 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.HBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="$CONTROLLER_NAME$"
-            prefHeight="400.0" prefWidth="600.0" >
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="website.fernandoconde.messaging.client.controllers.ContactChatController"
+            prefHeight="600.0" prefWidth="800.0">
 
-</AnchorPane>
+    <fx:define>
+        <Insets fx:id="insets" top="10" right="10" bottom="10" left="10"/>
+    </fx:define>
+
+    <!-- Header -->
+    <top>
+        <ToolBar>
+            <Label text="MyMessenger"/>
+            <Pane HBox.hgrow="ALWAYS"/>
+            <Button text="Neuen Kontakt hinzufügen" onAction="#onAddContact"/>
+        </ToolBar>
+    </top>
+
+    <!-- Linke Seite - Kontakte -->
+    <left>
+        <VBox spacing="10.0" prefWidth="200.0" padding="$insets">
+            <Label text="Kontakte"/>
+            <ListView fx:id="contactListView"/>
+        </VBox>
+    </left>
+
+    <!-- Mitte - Chat -->
+    <center>
+        <VBox spacing="10.0" padding="$insets">
+            <Label fx:id="chatWithLabel" text="Chat mit:"/>
+            <TextArea fx:id="chatArea" prefHeight="400.0" editable="false" wrapText="true"/>
+            <HBox spacing="10.0">
+                <TextField fx:id="messageField" promptText="Nachricht eingeben..." HBox.hgrow="ALWAYS"/>
+                <Button text="Senden" onAction="#onSendMessage"/>
+            </HBox>
+        </VBox>
+    </center>
+
+</BorderPane>

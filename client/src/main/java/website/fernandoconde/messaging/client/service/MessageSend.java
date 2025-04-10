@@ -7,12 +7,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-public class MessageClient {
+public class MessageSend {
 
     private final String apiUrl;
     private final String jwtToken;
 
-    public MessageClient(String apiUrl, String jwtToken) {
+    public MessageSend(String apiUrl, String jwtToken) {
         this.apiUrl = apiUrl;
         this.jwtToken = jwtToken;
     }

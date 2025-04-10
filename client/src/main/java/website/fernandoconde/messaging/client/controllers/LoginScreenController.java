@@ -1,32 +1,57 @@
 package website.fernandoconde.messaging.client.controllers;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.TextField;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.stage.Stage;
+import website.fernandoconde.messaging.client.network.ApiClient;
 
+import java.io.IOException;
 
 public class LoginScreenController {
+    @FXML private TextField userNameField;
+    @FXML private TextField passwordField;
+    @FXML private Label statusField;
+
+    private final ApiClient apiClient = new ApiClient("http://localhost:8080");
 
     @FXML
-    private TextField passwordField;
+    private void OnLogin() {
+        String username = userNameField.getText().trim();
+        String password = passwordField.getText().trim();
 
-    @FXML
-    private TextField userNameField;
+        if (username.isEmpty() || password.isEmpty()) {
+            statusField.setText("Bitte Benutzername und Passwort eingeben!");
+            return;
+        }
 
-    @FXML
-    void OnLogin(ActionEvent event) {
+        try {
+            // Authentifizierung über ApiClient
+            String token = apiClient.login(username, password);
+            switchToContactChat(token);
 
+        } catch (IOException e) {
+            statusField.setText("Login fehlgeschlagen: " + e.getMessage());
+        }
     }
 
-    @FXML
-    void onClear(ActionEvent event) {
-        passwordField.clear();
-        userNameField.clear();
-    }
+    private void switchToContactChat(String token) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/website/fernandoconde/messaging/views/ContactChatScreen.fxml"));
+            Parent root = loader.load();
 
-    @FXML
-    void onSignIn(ActionEvent event) {
-        System.out.println("Sign In clicked");
-    }
+            ContactChatController chatController = loader.getController();
+            chatController.setToken(token); // Token übergeben
 
+            Stage stage = (Stage) userNameField.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("MyMessenger - Chat");
+            stage.show();
+
+        } catch (IOException e) {
+            statusField.setText("Fehler beim Laden des Chats: " + e.getMessage());
+        }
+    }
 }
