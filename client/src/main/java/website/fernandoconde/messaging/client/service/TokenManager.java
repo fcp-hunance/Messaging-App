@@ -1,4 +1,4 @@
 package website.fernandoconde.messaging.client.service;
 
-public class AuthService {
+public class TokenManager {
 }

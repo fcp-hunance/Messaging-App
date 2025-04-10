@@ -1,4 +1,4 @@
 package website.fernandoconde.messaging.client.service;
 
-public class NetworkService {
+public class ContactChatControler {
 }
