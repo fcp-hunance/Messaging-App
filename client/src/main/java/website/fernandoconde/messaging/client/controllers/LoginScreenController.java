@@ -83,7 +83,7 @@ public class LoginScreenController {
 
             Stage stage = (Stage) userNameField.getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.setTitle("MyMessenger - Chat");
+            stage.setTitle("MarFer");
             stage.show();
 
         } catch (IOException e) {
