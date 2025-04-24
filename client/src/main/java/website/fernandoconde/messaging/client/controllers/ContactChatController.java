@@ -27,7 +27,7 @@ public class ContactChatController {
     private boolean isPollingActive = false;
 
     // Konstante für den festen Kontakt
-    private static final String FIXED_CONTACT = "CPFernando";
+    private static final String FIXED_CONTACT = <your-username-here>;
 
     @FXML
     public void initialize() {
