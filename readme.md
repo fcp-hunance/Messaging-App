@@ -184,3 +184,7 @@ Important: Make sure you are passing the correct Authorization token (either fro
 - Add contact search in client
 - Multi-user chat
 - Persistent chat history
+
+## License
+
+This project is licensed under the [MIT License](LICENSE.txt).
