@@ -48,7 +48,7 @@ spring.datasource.password=<your-db-password>
 app.jwt.secret=<your-jwt-secret>
 app.jwt.issuer=<your-issuer>
 ```
-Replace <your-github-client-id>, <your-github-client-secret>, and the database credentials with your actual values.  
+Replace `<your-github-client-id>`, `<your-github-client-secret>`, and the database credentials with your actual values.  
 Ensure the database (MySQL or other) is running and configured.
 
 3. Run the application: Once you have the repository set up and configured, you can start the application with the following command:
